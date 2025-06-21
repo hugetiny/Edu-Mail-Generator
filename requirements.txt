@@ -1,0 +1,19 @@
+# Core dependencies
+selenium>=4.15.0
+selenium-wire>=5.1.0
+webdriver-manager>=4.0.0
+undetected-chromedriver>=3.5.0
+
+# Data generation and manipulation
+faker>=20.0.0
+requests>=2.31.0
+
+# UI and display
+colorama>=0.4.6
+clint>=0.5.1
+
+# Utilities
+urllib3>=2.0.0
+
+# Optional: For better logging and configuration
+pyyaml>=6.0.0

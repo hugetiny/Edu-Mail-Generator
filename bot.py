@@ -3,6 +3,7 @@ import re
 import string
 import random
 import sys
+import os
 import colorama
 from seleniumwire import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -10,12 +11,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.service import Service as FirefoxService
 import seleniumwire.undetected_chromedriver.v2 as uc
 from random import randint
 from __constants.const import *
 from __banner.myBanner import bannerTop
 from __colors__.colors import *
 from helper import EduHelper
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 ######## This script is only for educational purpose ########
 ######## use it on your own RISK ########
@@ -70,22 +77,33 @@ def start_bot(start_url, email, college, collegeID, cookies, token):
     middleName = random.choice(letters)
 
     fp = open('prefBrowser.txt', 'r')
-    typex = fp.read()
+    typex = fp.read().strip()
+    fp.close()
+
     try:
         # For Chrome
         if typex == 'chrome':
-            driver = webdriver.Chrome(executable_path=r'./webdriver/chromedriver')
+            # Use webdriver-manager for automatic driver management
+            from webdriver_manager.chrome import ChromeDriverManager
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service)
         # For Firefox
         elif typex == 'firefox':
-            driver = webdriver.Firefox(executable_path=r'./webdriver/geckodriver')
+            from webdriver_manager.firefox import GeckoDriverManager
+            service = FirefoxService(GeckoDriverManager().install())
+            driver = webdriver.Firefox(service=service)
         elif typex == 'chrome_undetected':
             driver = uc.Chrome()
         elif typex == '':
             print(fr + 'Error - Run setup.py first')
             exit()
+        else:
+            print(fr + 'Error - Invalid browser type: ' + typex)
+            exit()
     except Exception as e:
         time.sleep(0.4)
         print('\n' + fr + 'Error - '+ str(e))
+        logging.error(f"Failed to initialize webdriver: {e}")
         exit()
     driver.request_interceptor = interceptor
     print(fc + sd + '[' + fm + sb + '*' + fc + sd + '] ' + fg + 'Interceptor Addition (success)')
@@ -149,9 +167,9 @@ def start_bot(start_url, email, college, collegeID, cookies, token):
 
     time.sleep(0.7)
 
-    driver.find_element_by_xpath('//*[@id="hasOtherNameNo"]').click()
+    driver.find_element(By.XPATH, '//*[@id="hasOtherNameNo"]').click()
 
-    driver.find_element_by_xpath('//*[@id="hasPreferredNameNo"]').click()
+    driver.find_element(By.XPATH, '//*[@id="hasPreferredNameNo"]').click()
 
     time.sleep(0.7)
 
@@ -201,7 +219,7 @@ def start_bot(start_url, email, college, collegeID, cookies, token):
 
     time.sleep(4)
 
-    element = driver.find_element_by_id('accountFormSubmit')
+    element = driver.find_element(By.ID, 'accountFormSubmit')
     desired_y = (element.size['height'] / 2) + element.location['y']
     window_h = driver.execute_script('return window.innerHeight')
     window_y = driver.execute_script('return window.pageYOffset')
